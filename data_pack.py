@@ -5,16 +5,12 @@ class TLV:
     def __init__(self, type, value):
         self.type = type
         self.value = value
-        if isinstance(self.value, int):
-            struct_grammar = '>BBL'
-        else:
-            struct_grammar = f'>BB{len(self.value)}s'
+        struct_grammar = '>BBL' if isinstance(self.value, int) else f'>BB{len(self.value)}s'
         try:
             if len(self.value.split('.')) == 4:
                 struct_grammar = '>BB4s'
         except Exception:
             pass
-
         self.struct = struct.Struct(struct_grammar)
         self.length = self.struct.size
 

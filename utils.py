@@ -61,3 +61,5 @@ def gen_message_authenticator(packet_data, shared_secret=config.SHARED_KEY):
     return message_authenticator
 
 
+
+

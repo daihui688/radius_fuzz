@@ -1,34 +1,38 @@
-import socket
 import random
+import socket
 
-from radius_data import *
+import const
+from data_pack import *
 from utils import *
 
-client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-code = 1
-identifier = random.randint(0, 255)
-authenticator = gen_request_authenticator()
-user_name = TLV(1, 'testing')
-user_password = TLV(2, gen_user_password('password', authenticator))
-nas_ip_address = TLV(4, '127.0.1.1')
-nas_port = TLV(5, 1812)
+class RadiusClient:
+    def __init__(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-_struct = struct.Struct(f'>BBH16s')
+    def send_data(self, data):
+        self.client.sendto(data, (config.SERVER_HOST, config.SERVER_PORT))
 
-length = _struct.size + user_name.length + user_password.length + nas_ip_address.length + nas_port.length
-data = _struct.pack(code, identifier, length, authenticator) + user_name.pack() + user_password.pack() + \
-       nas_ip_address.pack() + nas_port.pack()
-# message_authenticator = TLV(80, gen_message_authenticator(data))
-# data += message_authenticator.pack()
+    def handle(self):
+        data, (host, port) = self.client.recvfrom(1024)
+        print(host, port)
+        if data[0] == 2:
+            print('Access-Accept')
+        elif data[0] == 3:
+            print('Access-Reject')
 
-print(len(data), data)
-client.sendto(data, ('127.0.0.1', 1812))
-data, (host, port) = client.recvfrom(1024)
-if data[0] == 2:
-    print('Access-Accept')
-elif data[0] == 3:
-    print('Access-Reject')
-
-client.close()
-
+    def access_request(self):
+        authenticator = gen_request_authenticator()
+        encrypted_password = gen_user_password('123',authenticator)
+        params = {
+            'code': const.Code_Access_Request,
+            'identifier': random.randint(0, 255),
+            'authenticator': authenticator,
+            'user_name': TLV(const.AttributeType_User_Name, 'daihui'),
+            'user_password': TLV(const.AttributeType_User_Password, encrypted_password),
+            'nas_ip_address': TLV(const.AttributeType_NAS_IP_Address, config.SERVER_HOST),
+            'nas_port': TLV(const.AttributeType_NAS_Port, config.SERVER_PORT),
+        }
+        data = RadiusDataPack(**params).pack()
+        self.send_data(data)
+        self.handle()

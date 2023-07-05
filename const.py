@@ -48,7 +48,20 @@ AttributeType_Login_LAT_Group = 36
 AttributeType_Framed_AppleTalk_Link = 37
 AttributeType_Framed_AppleTalk_Network = 38
 AttributeType_Framed_AppleTalk_Zone = 39
-# 40-59 (reserved for accounting)
+# 40-59 accounting
+AttributeType_Acct_Status_Type = 40  # 计费请求报文类型
+AttributeType_Acct_Delay_Time = 41  # 发送报文延误的秒数
+AttributeType_Acct_Input_Octets = 42  # 用户从端口接收到的字节总数
+AttributeType_Acct_Output_Octets = 43  # 用户发送到端口的字节总数
+AttributeType_Acct_Session_Id = 44  # 在日志文件中匹配计费开始和计费结束记录的唯一的计费ID
+AttributeType_Acct_Authentic = 45  # 用户的认证方式
+AttributeType_Acct_Session_Time = 46  # 用户接受服务的时间
+AttributeType_Acct_Input_Packets = 47  # 用户从端口接收到的数据包总数
+AttributeType_Acct_Output_Packets = 48  # 用户发送到端口的数据包总数
+AttributeType_Acct_Terminate_Cause = 49  # 表明会话如何被终止的
+AttributeType_Acct_Multi_Session_Id = 50  # 唯一计费会话ID
+AttributeType_Acct_Link_Count = 51  # 计费记录生成时该多链路会话的已经知道的链路个数
+
 AttributeType_CHAP_Challenge = 60  # 由NAS发送的CHAP挑战
 AttributeType_NAS_Port_Type = 61  # 用户认证的NAS的物理端口的类型
 AttributeType_Port_Limit = 62  # NAS提供给用户的端口的最大数量
@@ -66,3 +79,11 @@ ServiceType_Authenticate_Only = 8
 ServiceType_Callback_NAS_Prompt = 9
 ServiceType_Call_Check = 10
 ServiceType_Callback_Administrative = 11
+
+Acct_Status_Type_Start = 1  # 计费开始
+Acct_Status_Type_Stop = 2  # 计费结束
+Acct_Status_Type_Interim_Update = 3  # 计费更新
+Acct_Status_Type_Interim_Accounting_On = 4  # 计费开始，通常为设备重启后
+Acct_Status_Type_Interim_Accounting_Off = 5  # 计计费结束，通常为设备重启前
+# 9-14 Reserved for Tunnel Accounting（为隧道计费保留）
+# 15 Reserved for Failed（为计费失败保留）

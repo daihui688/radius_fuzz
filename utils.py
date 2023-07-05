@@ -1,11 +1,14 @@
 import os
 import hmac
+from typing import Dict
+
 import config
 import hashlib
 import math
+import struct
 
 
-def gen_request_authenticator(shared_key=config.SHARED_KEY):
+def gen_access_request_request_authenticator(shared_key=config.SHARED_KEY):
     # 生成随机数作为请求认证字
     request_authenticator = os.urandom(16)
 
@@ -61,5 +64,27 @@ def gen_message_authenticator(packet_data, shared_secret=config.SHARED_KEY):
     return message_authenticator
 
 
+def gen_accounting_request_request_authenticator(code, identifier, length, attributes=b'', shared_secret=config.SHARED_KEY):
+    # 创建一个包含 16 个值为 0 的字节的占位符
+    placeholder = b'\x00' * 16
+
+    # 将 Code、Identifier 和 Length 转换为字节
+    code_bytes = struct.pack('B', code)
+    identifier_bytes = struct.pack('B', identifier)
+    length_bytes = struct.pack('>H', length)
+
+    # 将所有部分连接在一起
+    data = code_bytes + identifier_bytes + length_bytes + placeholder + attributes + shared_secret.encode()
+
+    # 计算 MD5 哈希值
+    md5_hash = hashlib.md5(data).digest()
+
+    return md5_hash
 
 
+def gen_accounting_request_attributes(params: Dict):
+    attributes = b''
+    for k, v in params.items():
+        if k not in ['code', 'identifier', 'authenticator']:
+            attributes += v.pack()
+    return attributes

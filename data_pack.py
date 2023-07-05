@@ -2,29 +2,32 @@ import struct
 
 
 class TLV:
+
     def __init__(self, type, value):
         self.type = type
         self.value = value
         struct_grammar = '>BBL' if isinstance(self.value, int) else f'>BB{len(self.value)}s'
-        try:
-            if len(self.value.split('.')) == 4:
-                struct_grammar = '>BB4s'
-        except Exception:
-            pass
+        if self._value_is_host:
+            struct_grammar = '>BB4s'
         self.struct = struct.Struct(struct_grammar)
         self.length = self.struct.size
 
-    def _host_to_int(self, host):
+    @property
+    def _value_is_host(self):
         try:
-            if len(host.split['.']) == 4:
-                self.value = b''
-                for i in range(4):
-                    self.value += struct.pack('>B', int(host.split('.')[i]))
+            if len(self.value.split('.')) == 4:
+                return True
         except Exception:
-            pass
+            return False
+
+    def _host_to_int(self, host):
+        if self._value_is_host:
+            self.value = b''
+            for i in range(4):
+                self.value += struct.pack('>B', int(host.split('.')[i]))
 
     def pack(self):
-        if type(self.value) == str:
+        if type(self.value) == str and not self._value_is_host:
             self.value = self.value.encode()
         self._host_to_int(self.value)
         data = self.struct.pack(self.type, self.length, self.value)
